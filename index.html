@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1f3a6e">
+  <meta name="description" content="교육과정 박람회 GNU 생성형 AI 윤리 가이드라인 교육 — 8대 핵심원칙 단편 영상 1편 시청으로 이수하는 모바일 교육">
+  <title>GNU 생성형 AI 윤리교육</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <a class="skip" href="#main">본문 바로가기</a>
+
+  <div id="inapp-banner" class="banner banner-warn" hidden>
+    <p><strong>앱 안의 브라우저</strong>에서는 영상이 재생되지 않거나 기록이 끊길 수 있습니다.</p>
+    <div class="banner-actions">
+      <button type="button" id="btn-open-external" class="btn btn-sm">기본 브라우저로 열기</button>
+      <button type="button" id="btn-copy-link" class="btn btn-sm btn-ghost">링크 복사</button>
+    </div>
+    <p id="inapp-ios-hint" class="hint" hidden>화면 오른쪽 아래(또는 위)의 <b>···</b> 메뉴에서 <b>Safari로 열기</b>를 눌러 주세요.</p>
+  </div>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">GNU</span>
+      <div>
+        <p class="brand-sub" id="organizer">경상국립대학교 AI융합원</p>
+        <p class="brand-title" id="event-name">GNU 생성형 AI 윤리교육</p>
+      </div>
+    </div>
+    <span id="net-status" class="chip chip-off" hidden>오프라인</span>
+    <span id="demo-badge" class="chip chip-demo" hidden title="GAS_URL 이 비어 있어 브라우저 안에서만 동작합니다">데모</span>
+  </header>
+
+  <main id="main" tabindex="-1">
+
+    <!-- 0. 로딩 -->
+    <section class="view" id="view-loading" aria-busy="true">
+      <div class="card center">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>교육 정보를 불러오는 중입니다…</p>
+      </div>
+    </section>
+
+    <!-- 0-1. 오류 -->
+    <section class="view" id="view-error" hidden>
+      <div class="card center">
+        <h1 class="h2">연결할 수 없습니다</h1>
+        <p id="error-message">서버에 연결하지 못했습니다. 네트워크를 확인한 뒤 다시 시도해 주세요.</p>
+        <button type="button" class="btn btn-primary" data-action="reload">다시 시도</button>
+      </div>
+    </section>
+
+    <!-- 0-2. 기간 외 -->
+    <section class="view" id="view-closed" hidden>
+      <div class="card center">
+        <h1 class="h2">지금은 교육 기간이 아닙니다</h1>
+        <p id="closed-period"></p>
+        <a class="btn btn-ghost" href="#lookup">이수 여부 조회</a>
+      </div>
+    </section>
+
+    <!-- 1. 랜딩 -->
+    <section class="view" id="view-landing" hidden>
+      <div class="hero">
+        <p class="eyebrow">교육과정 박람회 · 필수 윤리교육</p>
+        <h1>GNU 생성형 AI<br>윤리 가이드라인 교육</h1>
+        <p class="lead">8대 핵심원칙 영상 중 <b>관심 있는 1편</b>을 골라 끝까지 시청하면 이수가 완료됩니다. 별도의 시험이나 과제는 없습니다.</p>
+      </div>
+
+      <ul class="facts">
+        <li><span class="fact-k">소요 시간</span><span class="fact-v" id="fact-duration">약 3분</span></li>
+        <li><span class="fact-k">이수 조건</span><span class="fact-v" id="fact-pass">선택한 영상 90% 이상 시청</span></li>
+        <li><span class="fact-k">준비물</span><span class="fact-v">교번(직번) 또는 학번</span></li>
+      </ul>
+
+      <div class="card notice">
+        <p><b>시청 시간은 실제 재생된 시간만 인정됩니다.</b> 앞으로 건너뛴 구간, 일시정지 시간, 다른 앱·탭으로 이동한 시간은 포함되지 않습니다. 이어폰을 사용하거나 소리를 줄여 시청해 주세요.</p>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn btn-primary btn-lg" id="btn-resume" hidden>이어서 시청하기</button>
+        <button type="button" class="btn btn-primary btn-lg" id="btn-start">교육 시작하기</button>
+        <a class="link" href="#lookup">이미 이수했나요? 이수 여부 조회</a>
+      </div>
+
+      <details class="principles-box">
+        <summary>8대 핵심원칙 미리 보기</summary>
+        <ol class="principles" id="principles-landing"></ol>
+      </details>
+    </section>
+
+    <!-- 1-1. 영상 선택 -->
+    <section class="view" id="view-select" hidden>
+      <h1 class="h2">시청할 영상 선택</h1>
+      <p class="muted">8대 핵심원칙 중 <b>1편</b>을 선택해 주세요. 선택한 영상을 90% 이상 시청하면 이수됩니다.</p>
+      <form id="form-select" novalidate>
+        <div class="video-list" id="video-list" role="radiogroup" aria-label="교육 영상 목록"></div>
+        <p class="err" data-err="video_id"></p>
+        <div class="actions">
+          <button type="submit" class="btn btn-primary btn-lg" id="btn-select">다음: 참가자 정보</button>
+          <button type="button" class="btn btn-ghost" data-go="landing">이전</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- 2. 신원 등록 -->
+    <section class="view" id="view-register" hidden>
+      <h1 class="h2">참가자 정보</h1>
+      <p class="picked" id="picked-video"></p>
+      <p class="muted">이수 기록을 남기기 위해 아래 정보를 입력해 주세요.</p>
+      <form id="form-register" novalidate>
+        <fieldset class="field">
+          <legend>구분 <span class="req">필수</span></legend>
+          <div class="seg" role="radiogroup">
+            <label><input type="radio" name="member_type" value="교원" required><span>교원</span></label>
+            <label><input type="radio" name="member_type" value="교직원"><span>교직원</span></label>
+            <label><input type="radio" name="member_type" value="학생"><span>학생</span></label>
+          </div>
+          <p class="err" data-err="member_type"></p>
+        </fieldset>
+
+        <div class="field">
+          <label for="f-name">성명 <span class="req">필수</span></label>
+          <input id="f-name" name="name" type="text" autocomplete="name" maxlength="30" required>
+          <p class="err" data-err="name"></p>
+        </div>
+
+        <div class="field">
+          <label for="f-affiliation">소속 <span class="req">필수</span></label>
+          <input id="f-affiliation" name="affiliation" type="text" maxlength="60" placeholder="예: 공과대학 컴퓨터공학과 / 교육혁신처" required>
+          <p class="err" data-err="affiliation"></p>
+        </div>
+
+        <div class="field">
+          <label for="f-member-no"><span id="label-member-no">교번(직번) 또는 학번</span> <span class="req">필수</span></label>
+          <input id="f-member-no" name="member_no" type="text" inputmode="numeric" autocomplete="off" maxlength="20" required>
+          <p class="hint" id="hint-member-no">이수 여부 확인과 중복 방지에 사용됩니다.</p>
+          <p class="err" data-err="member_no"></p>
+        </div>
+
+        <div class="field">
+          <label for="f-phone">연락처 <span class="opt">선택</span></label>
+          <input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="010-0000-0000">
+          <p class="err" data-err="phone"></p>
+        </div>
+
+        <div class="consent">
+          <details>
+            <summary>개인정보 수집·이용 안내 (전문 보기)</summary>
+            <table class="consent-table">
+              <tr><th scope="row">수집 항목</th><td>(필수) 구분, 성명, 소속, 교번·학번 / (선택) 연락처 / (자동) 접속 기기 정보, 영상 재생 기록</td></tr>
+              <tr><th scope="row">이용 목적</th><td>GNU 생성형 AI 윤리교육 이수 확인 및 이수 현황 집계</td></tr>
+              <tr><th scope="row">보관 기간</th><td>교육 종료 후 1년. 기간 경과 후 재생 기록은 파기하고 이수 현황은 성명을 가린 통계로만 보관</td></tr>
+              <tr><th scope="row">동의 거부</th><td>동의하지 않을 수 있으나, 이 경우 이수 기록을 남길 수 없습니다.</td></tr>
+            </table>
+          </details>
+          <label class="check">
+            <input type="checkbox" name="consent" id="f-consent" required>
+            <span>개인정보 수집·이용에 동의합니다. <span class="req">필수</span></span>
+          </label>
+          <p class="err" data-err="consent"></p>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn btn-primary btn-lg" id="btn-register">다음: 영상 시청</button>
+          <button type="button" class="btn btn-ghost" data-go="select">이전: 영상 다시 선택</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- 3. 영상 시청 -->
+    <section class="view view-video" id="view-video" hidden>
+      <p class="who" id="who"></p>
+      <h1 class="video-title" id="video-title"></h1>
+      <div class="player-wrap">
+        <div id="player"></div>
+        <div class="player-cover" id="player-cover" hidden>
+          <p id="player-cover-text"></p>
+          <button type="button" class="btn btn-primary" id="btn-cover-action"></button>
+        </div>
+      </div>
+
+      <div class="progress-card">
+        <div class="stats">
+          <div><span class="stat-k">실제 시청</span><span class="stat-v" id="stat-watched">00:00</span></div>
+          <div><span class="stat-k">진행률</span><span class="stat-v" id="stat-ratio">0%</span></div>
+          <div><span class="stat-k">이수까지</span><span class="stat-v" id="stat-remaining">-</span></div>
+        </div>
+        <div class="bar" role="progressbar" aria-label="이수 진행률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="bar">
+          <div class="bar-fill" id="bar-fill"></div>
+          <div class="bar-mark" id="bar-mark" title="이수 기준"></div>
+        </div>
+        <p class="bar-legend"><span>0%</span><span id="bar-mark-label">기준 90%</span><span>100%</span></p>
+        <p class="sr-only" aria-live="polite" id="milestone"></p>
+      </div>
+
+      <p class="notice-inline" id="video-notice">건너뛴 구간과 일시정지·화면 이탈 시간은 시청 시간에 포함되지 않습니다.</p>
+
+      <div class="actions">
+        <button type="button" class="btn btn-primary btn-lg" id="btn-complete" disabled>이수 완료</button>
+        <button type="button" class="btn btn-ghost" id="btn-gap" hidden>안 본 구간으로 이동</button>
+      </div>
+
+      <p class="sync" id="sync-status" aria-live="polite">기록 준비 중</p>
+      <p class="small center"><button type="button" class="link" id="btn-fallback">영상이 재생되지 않나요?</button></p>
+    </section>
+
+    <!-- 3a. 폴백 -->
+    <section class="view" id="view-fallback" hidden>
+      <h1 class="h2">영상을 재생할 수 없습니다</h1>
+      <ul class="steps">
+        <li><b>카카오톡·인스타그램 등 앱에서 열었다면</b> 기본 브라우저(Chrome, Safari, 삼성 인터넷)로 다시 열어 주세요.</li>
+        <li><b>네트워크가 불안정하다면</b> 행사장 와이파이 또는 LTE/5G로 전환한 뒤 다시 시도해 주세요.</li>
+        <li><b>그래도 재생되지 않으면</b> 부스 스태프에게 문의해 주세요.</li>
+      </ul>
+      <div class="card notice">
+        <p>아래 YouTube 링크로 시청하면 시청 시간이 자동으로 기록되지 않습니다. 시청 후 <b>부스 스태프에게 수기 확인</b>을 받아야 이수로 처리됩니다.</p>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn btn-primary btn-lg" data-action="reload">다시 시도</button>
+        <a class="btn btn-ghost" id="link-youtube" href="https://www.youtube.com/playlist?list=PLWHIHuOG5gKydLHOJjB8cJzRQpHpJmPuq" target="_blank" rel="noopener">YouTube에서 바로 보기</a>
+      </div>
+    </section>
+
+    <!-- 4. 이수 완료 -->
+    <section class="view" id="view-done" hidden>
+      <div class="done-card" id="done-card">
+        <p class="done-badge" id="done-badge">이수 완료</p>
+        <p class="done-title" id="done-title">GNU 생성형 AI 윤리교육</p>
+        <dl class="done-meta">
+          <div><dt>이수번호</dt><dd id="done-no">-</dd></div>
+          <div><dt>이수 일시</dt><dd id="done-at">-</dd></div>
+          <div><dt>시청 영상</dt><dd id="done-video">-</dd></div>
+          <div><dt>성명</dt><dd id="done-name">-</dd></div>
+          <div><dt>구분·소속</dt><dd id="done-aff">-</dd></div>
+        </dl>
+        <p class="done-msg" id="done-msg">이 화면을 캡처해 보관하고, 필요하면 부스 스태프에게 보여 주세요.</p>
+      </div>
+      <h2 class="h3">함께 기억해 주세요: 8대 핵심원칙</h2>
+      <p class="muted small">나머지 원칙 영상은 <a id="link-playlist" href="https://www.youtube.com/playlist?list=PLWHIHuOG5gKydLHOJjB8cJzRQpHpJmPuq" target="_blank" rel="noopener">YouTube 재생목록</a>에서 자유롭게 시청할 수 있습니다.</p>
+      <ol class="principles cards" id="principles-done"></ol>
+      <div class="actions">
+        <a class="btn btn-ghost" href="#lookup">이수 여부 조회</a>
+        <button type="button" class="btn btn-ghost" id="btn-new-person">다른 참가자가 이 기기로 시작하기</button>
+      </div>
+    </section>
+
+    <!-- 5. 이수 조회 -->
+    <section class="view" id="view-lookup" hidden>
+      <h1 class="h2">이수 여부 조회</h1>
+      <form id="form-lookup" novalidate>
+        <div class="field">
+          <label for="l-member-no">교번(직번) 또는 학번</label>
+          <input id="l-member-no" name="member_no" type="text" inputmode="numeric" autocomplete="off" maxlength="20" required>
+        </div>
+        <div class="field">
+          <label for="l-name">성명</label>
+          <input id="l-name" name="name" type="text" maxlength="30" required>
+        </div>
+        <div class="actions">
+          <button type="submit" class="btn btn-primary btn-lg">조회하기</button>
+          <a class="btn btn-ghost" href="#">처음 화면</a>
+        </div>
+      </form>
+      <div class="card" id="lookup-result" hidden aria-live="polite"></div>
+    </section>
+
+    <!-- 데모 전용: 시트 미리보기 -->
+    <section class="view" id="view-admin" hidden>
+      <h1 class="h2">구글시트 미리보기 <span class="chip chip-demo">데모</span></h1>
+      <p class="muted" id="admin-intro">데모 모드에서 기록된 데이터입니다. 실제 운영에서는 같은 구조로 구글시트에 기록됩니다.</p>
+      <form class="admin-cfg" id="form-admin-cfg">
+        <label>이수 기준 비율 <input type="number" name="pass_ratio" step="0.01" min="0.01" max="1"></label>
+        <label>하트비트(초) <input type="number" name="heartbeat_sec" step="1" min="5" max="300"></label>
+        <button type="submit" class="btn btn-sm">설정 저장</button>
+        <button type="button" class="btn btn-sm btn-danger" id="btn-demo-reset">데모 데이터 초기화</button>
+      </form>
+      <div class="tabs" id="admin-tabs" role="tablist"></div>
+      <div class="table-wrap" id="admin-table"></div>
+      <div class="actions"><a class="btn btn-ghost" href="#">처음 화면</a></div>
+    </section>
+  </main>
+
+  <div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-box">
+      <h2 class="h3" id="modal-title"></h2>
+      <p id="modal-body"></p>
+      <div class="actions">
+        <button type="button" class="btn btn-primary" id="modal-ok"></button>
+        <button type="button" class="btn btn-ghost" id="modal-cancel"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="assertive" hidden></div>
+
+  <footer class="foot">
+    <p>경상국립대학교 글로컬대학30 · AI융합원</p>
+  </footer>
+
+  <script src="assets/config.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>
